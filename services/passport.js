@@ -21,21 +21,16 @@ passport.use(
       callbackURL: '/auth/google/callback',
       proxy: true
     },
-    (accessToken, refreshToken, profile, done) => {
-    // console.log('AccesToken: ',accessToken);
-    // console.log('RefreshTonek: ',refreshToken);
-    // console.log('porfile:' ,profile);
-
-      User.findOne({ googleId: profile.id }).then((existingUser) => {
-        if (existingUser) {
-          console.log('existe')
-          done(null, existingUser)
-        } else {
-          new User({ googleId: profile.id })
-            .save()
-            .then(User => done(null, User))
-          console.log('Nuevo user')
-        }
-      })
-    })
+    async (accessToken, refreshToken, profile, done) => {
+      const existingUser = await User.findOne({ googleId: profile.id })
+      if (existingUser) {
+        console.log('existe')
+        done(null, existingUser)
+      } else {
+        const user = await new User({ googleId: profile.id }).save()
+        done(null, user)
+        console.log('Nuevo user')
+      }
+    }
+  )
 )
